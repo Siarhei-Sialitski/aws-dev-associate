@@ -37,7 +37,7 @@ jobs:
         run: dotnet publish --configuration Release --output ./publish
 
       - name: Upload published artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: published-app
+          name: web-api
           path: ./publish
