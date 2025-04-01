@@ -26,15 +26,15 @@ jobs:
 
       # Restore dependencies
       - name: Restore .NET dependencies
-        run: dotnet restore
+        run: dotnet restore AwsDevAssociate/AwsDevAssociate.sln
 
       # Build the project
       - name: Build .NET application
-        run: dotnet build --configuration Release
+        run: dotnet build AwsDevAssociate/AwsDevAssociate.sln --configuration Release
 
       # Publish the application
       - name: Publish .NET application
-        run: dotnet publish --configuration Release --output ./publish
+        run: dotnet publish AwsDevAssociate/AwsDevAssociate.sln --configuration Release --output ./publish
 
       - name: Upload published artifacts
         uses: actions/upload-artifact@v4
