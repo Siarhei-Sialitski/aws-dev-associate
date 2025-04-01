@@ -1,0 +1,43 @@
+name: Build and Publish .NET Application
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use a Linux machine
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up .NET SDK
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0'
+
+      # Restore dependencies
+      - name: Restore .NET dependencies
+        run: dotnet restore
+
+      # Build the project
+      - name: Build .NET application
+        run: dotnet build --configuration Release
+
+      # Publish the application
+      - name: Publish .NET application
+        run: dotnet publish --configuration Release --output ./publish
+
+      - name: Upload published artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: published-app
+          path: ./publish
