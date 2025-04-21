@@ -58,11 +58,11 @@ app.MapGet("/metainfo", () =>
 .WithName("GetMetaInfo")
 .WithOpenApi();
 
-app.MapPost("/images", async (string imageName, string base64Image, IImagesRepository repository) =>
+app.MapPost("/images", async (UploadImagePayload payload, IImagesRepository repository) =>
 {
     try
     {
-        await repository.UploadImage(imageName, base64Image);
+        await repository.UploadImage(payload.ImageName, payload.Base64Image);
         return Results.Ok("Image uploaded successfully");
     }
     catch (Exception ex)
@@ -123,3 +123,5 @@ internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+public record UploadImagePayload(string ImageName, string Base64Image);
