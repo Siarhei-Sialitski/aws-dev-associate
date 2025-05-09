@@ -125,7 +125,7 @@ public class ImagesRepository : IImagesRepository
 
                 // Update the continuation token for the next request (if more objects exist)
                 request.ContinuationToken = response.NextContinuationToken;
-            } while (response.IsTruncated); // Continue if there are more objects to fetch
+            } while (response.IsTruncated ?? false); // Continue if there are more objects to fetch
 
             var random = new Random();
             int randomIndex = random.Next(objectKeys.Count);
@@ -139,4 +139,4 @@ public class ImagesRepository : IImagesRepository
     }
 }
 
-public record ImageMetaInfo(string ImageName, long ContentLength, DateTime LastModified, string FileExtension);
+public record ImageMetaInfo(string ImageName, long ContentLength, DateTime? LastModified, string FileExtension);

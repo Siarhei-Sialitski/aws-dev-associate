@@ -1,4 +1,6 @@
 using Amazon.S3;
+using Amazon.SimpleNotificationService;
+using Amazon.SQS;
 using Amazon.Util;
 using WebApi;
 
@@ -10,8 +12,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
 builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddAWSService<IAmazonSQS>();
+builder.Services.AddAWSService<IAmazonSimpleNotificationService>();
 builder.Services.AddSingleton<IImagesRepository, ImagesRepository>();
+builder.Services.AddSingleton<IQueueRepository, QueueRepository>();
+builder.Services.AddSingleton<ISnsRepository, SnsRepository>();
 builder.Services.AddHealthChecks();
+builder.Services.AddHostedService<QueueMessageReader>();
 
 var app = builder.Build();
 
@@ -58,11 +65,15 @@ app.MapGet("/metainfo", () =>
 .WithName("GetMetaInfo")
 .WithOpenApi();
 
-app.MapPost("/images", async (UploadImagePayload payload, IImagesRepository repository) =>
+app.MapPost("/images", async (UploadImagePayload payload, IImagesRepository repository, IQueueRepository queueRepository) =>
 {
     try
     {
         await repository.UploadImage(payload.ImageName, payload.Base64Image);
+
+        var metaInfo = await repository.ImageMetainfo(payload.ImageName);
+        await queueRepository.SendMessage(metaInfo);
+
         return Results.Ok("Image uploaded successfully");
     }
     catch (Exception ex)
@@ -117,6 +128,15 @@ app.MapGet("/images/metainfo", async (string? imageName, IImagesRepository repos
 app.MapHealthChecks("/healthz")
     .WithName("HealthCheck")
     .WithOpenApi();
+
+app.MapPost("/subscribe", async (SubscriptionPayload body, ISnsRepository snsRepository) => {
+    await snsRepository.AddSubscription(body.email);
+});
+
+app.MapPost("/unsubscribe", async (SubscriptionPayload body, ISnsRepository snsRepository) => {
+    await snsRepository.RemoveSubscription(body.email);
+});
+
 app.Run();
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
@@ -125,3 +145,5 @@ internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary
 }
 
 public record UploadImagePayload(string ImageName, string Base64Image);
+
+public record SubscriptionPayload(string email);
