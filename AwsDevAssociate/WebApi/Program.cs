@@ -18,7 +18,7 @@ builder.Services.AddSingleton<IImagesRepository, ImagesRepository>();
 builder.Services.AddSingleton<IQueueRepository, QueueRepository>();
 builder.Services.AddSingleton<ISnsRepository, SnsRepository>();
 builder.Services.AddHealthChecks();
-builder.Services.AddHostedService<QueueMessageReader>();
+//builder.Services.AddHostedService<QueueMessageReader>();
 
 var app = builder.Build();
 
