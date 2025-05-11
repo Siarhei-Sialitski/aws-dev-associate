@@ -24,7 +24,7 @@ public class QueueMessageReader : BackgroundService
         {
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                await DoWork();
+                //await DoWork();
             }
         }
         catch (OperationCanceledException)
